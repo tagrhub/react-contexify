@@ -251,7 +251,13 @@ export function App() {
         </Item>
         <Separator />
         <Item>Item 4</Item>
-        <Submenu label="Submenu" data-test={DATA_TEST.SUBMENU}>
+        <Submenu
+          label="Submenu"
+          data-test={DATA_TEST.SUBMENU}
+          onClick={() => {
+            console.log('XXX');
+          }}
+        >
           <Item data-test={DATA_TEST.SUBMENU_FIRST_ITEM}>Submenu Item 1</Item>
           <Item>Submenu Item 2</Item>
           <Separator />

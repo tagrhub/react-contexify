@@ -1,15 +1,20 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import cx from 'clsx';
 
-import { InternalProps, BooleanPredicate, HandlerParamsEvent } from '../types';
+import {
+  InternalProps,
+  BooleanPredicate,
+  HandlerParamsEvent,
+  ItemParams,
+} from '../types';
 import { RefTrackerProvider, useRefTrackerContext } from './RefTrackerProvider';
 import { useRefTracker } from '../hooks';
-import { STYLE } from '../constants';
+import { STYLE, NOOP } from '../constants';
 import { cloneItems, getPredicateValue } from './utils';
 
 export interface SubMenuProps
   extends InternalProps,
-    Omit<React.HTMLAttributes<HTMLElement>, 'hidden'> {
+    Omit<React.HTMLAttributes<HTMLElement>, 'hidden' | 'onClick'> {
   /**
    * Any valid node that can be rendered
    */
@@ -34,6 +39,32 @@ export interface SubMenuProps
    * Hide the `Submenu` and his children. If a function is used, a boolean must be returned
    */
   hidden?: BooleanPredicate;
+
+  /**
+   * Callback when the `Item` is clicked.
+   *
+   * @param event The event that occured on the Item node
+   * @param props The props passed when you called `show(e, {props: yourProps})`
+   * @param data The data defined on the `Item`
+   * @param triggerEvent The event that triggered the context menu
+   *
+   * ```
+   * function handleItemClick({ triggerEvent, event, props, data }: ItemParams<type of props, type of data>){
+   *    // retrieve the id of the Item or any other dom attribute
+   *    const id = e.currentTarget.id;
+   *
+   *    // access the props and the data
+   *    console.log(props, data);
+   *
+   *    // access the coordinate of the mouse when the menu has been displayed
+   *    const {  clientX, clientY } = triggerEvent;
+   *
+   * }
+   *
+   * <Item id="item-id" onClick={handleItemClick} data={{key: 'value'}}>Something</Item>
+   * ```
+   */
+  onClick?: (args: ItemParams) => void;
 }
 
 interface SubMenuState {
@@ -53,6 +84,7 @@ export const Submenu: React.FC<SubMenuProps> = ({
   triggerEvent,
   propsFromTrigger,
   style,
+  onClick = NOOP,
   ...rest
 }) => {
   const menuRefTracker = useRefTrackerContext();
@@ -95,8 +127,9 @@ export const Submenu: React.FC<SubMenuProps> = ({
     }
   }, []);
 
-  function handleClick(e: React.SyntheticEvent) {
-    e.stopPropagation();
+  function handleClick(e: React.MouseEvent<HTMLElement>) {
+    (handlerParams as ItemParams).event = e;
+    isDisabled ? e.stopPropagation() : onClick(handlerParams as ItemParams);
   }
 
   function trackRef(node: HTMLElement | null) {

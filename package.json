@@ -17,7 +17,7 @@
     "build": "yarn run prepare",
     "test": "cypress run",
     "lint": "tsdx lint",
-    "prepare": "tsdx build && yarn run style",
+    "prepack": "tsdx build && yarn run style",
     "cypress:open": "cypress open",
     "sass": "sass scss/main.scss dist/ReactContexify.css",
     "postsass": "postcss dist/ReactContexify.css --use autoprefixer -m -o dist/ReactContexify.css",
@@ -77,5 +77,6 @@
   },
   "dependencies": {
     "clsx": "^1.1.1"
-  }
+  },
+  "packageManager": "yarn@4.2.2"
 }
